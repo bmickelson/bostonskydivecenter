@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>KSFZ Weather Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      color: #333;
+      padding: 2em;
+    }
+    h1 {
+      color: #165C7D;
+    }
+    .data {
+      font-size: 1.2em;
+      margin-top: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>KSFZ Weather Dashboard</h1>
+  <div id="weather" class="data">Loading...</div>
+
+  <script>
+    const url = "https://api.open-meteo.com/v1/forecast?latitude=41.9208&longitude=-71.4914&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const c = data.current;
+        document.getElementById("weather").innerHTML = `
+          <strong>Temperature:</strong> ${c.temperature_2m}°C<br>
+          <strong>Wind:</strong> ${c.wind_speed_10m} km/h from ${c.wind_direction_10m}°<br>
+          <strong>Gusts:</strong> ${c.wind_gusts_10m} km/h<br>
+          <strong>Precipitation:</strong> ${c.precipitation} mm<br>
+          <strong>Cloud Cover:</strong> ${c.cloud_cover}%<br>
+          <strong>Cloud Layers:</strong> Low ${c.cloud_cover_low}%, Mid ${c.cloud_cover_mid}%, High ${c.cloud_cover_high}%
+        `;
+      })
+      .catch(err => {
+        document.getElementById("weather").textContent = "Error loading data.";
+        console.error(err);
+      });
+  </script>
+</body>
+</html>
