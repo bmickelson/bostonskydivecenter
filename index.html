@@ -2,48 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>KSFZ Weather Dashboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boston Skydive Center (KSFZ) Weather Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: sans-serif;
-      background: #f4f4f4;
-      color: #333;
-      padding: 2em;
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f4f4f4;
+      color: #165C7D;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    header img {
+      max-width: 100%;
+      height: auto;
+      max-height: 100px;
+      margin-bottom: 1rem;
     }
     h1 {
+      font-size: 2rem;
       color: #165C7D;
     }
-    .data {
-      font-size: 1.2em;
-      margin-top: 1em;
+    .dashboard {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      margin: 2rem auto;
+    }
+    .weather-data {
+      font-size: 1.2rem;
+      line-height: 2;
+    }
+    .wind-rose {
+      margin-top: 2rem;
+    }
+    .wind-arrow {
+      transform: rotate(0deg);
+      transition: transform 0.5s ease;
+      font-size: 2rem;
+      display: inline-block;
+    }
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      .dashboard {
+        padding: 1rem;
+      }
+      .weather-data {
+        font-size: 1rem;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>KSFZ Weather Dashboard</h1>
-  <div id="weather" class="data">Loading...</div>
+  <header>
+    <img src="BostonSkydiveCenter_LogoSheet_Update_Horizontal1.jpg" alt="Boston Skydive Center logo">
+    <h1>Boston Skydive Center (KSFZ) Weather Dashboard</h1>
+  </header>
+
+  <div class="dashboard">
+    <div id="weather" class="weather-data">Loading...</div>
+    <div class="wind-rose">
+      <div>Wind Direction</div>
+      <div id="windArrow" class="wind-arrow">⬆️</div>
+    </div>
+  </div>
 
   <script>
-    const url = "https://api.open-meteo.com/v1/forecast?latitude=41.9208&longitude=-71.4914&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high";
+    function fetchWeather() {
+      const url = "https://api.open-meteo.com/v1/forecast?latitude=41.9208&longitude=-71.4914&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m,precipitation,cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high&temperature_unit=fahrenheit&wind_speed_unit=mph";
 
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        const c = data.current;
-        document.getElementById("weather").innerHTML = `
-          <strong>Temperature:</strong> ${c.temperature_2m}°C<br>
-          <strong>Wind:</strong> ${c.wind_speed_10m} km/h from ${c.wind_direction_10m}°<br>
-          <strong>Gusts:</strong> ${c.wind_gusts_10m} km/h<br>
-          <strong>Precipitation:</strong> ${c.precipitation} mm<br>
-          <strong>Cloud Cover:</strong> ${c.cloud_cover}%<br>
-          <strong>Cloud Layers:</strong> Low ${c.cloud_cover_low}%, Mid ${c.cloud_cover_mid}%, High ${c.cloud_cover_high}%
-        `;
-      })
-      .catch(err => {
-        document.getElementById("weather").textContent = "Error loading data.";
-        console.error(err);
-      });
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const c = data.current;
+          const weatherDiv = document.getElementById("weather");
+          weatherDiv.innerHTML = `
+            <strong>Temperature:</strong> ${c.temperature_2m}&deg;F<br>
+            <strong>Wind:</strong> ${c.wind_speed_10m} mph from ${c.wind_direction_10m}&deg;<br>
+            <strong>Gusts:</strong> ${c.wind_gusts_10m} mph<br>
+            <strong>Precipitation:</strong> ${c.precipitation} in<br>
+            <strong>Cloud Cover:</strong> ${c.cloud_cover}%<br>
+            <strong>Cloud Layers:</strong> Low ${c.cloud_cover_low}%, Mid ${c.cloud_cover_mid}%, High ${c.cloud_cover_high}%
+          `;
+
+          const windArrow = document.getElementById("windArrow");
+          windArrow.style.transform = `rotate(${c.wind_direction_10m}deg)`;
+        })
+        .catch(err => {
+          document.getElementById("weather").textContent = "Error loading data.";
+          console.error(err);
+        });
+    }
+
+    fetchWeather();
+    setInterval(fetchWeather, 30000); // Refresh every 30 seconds
   </script>
 </body>
 </html>
